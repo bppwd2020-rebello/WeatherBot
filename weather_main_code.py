@@ -36,7 +36,8 @@ class Client(discord.Client):
             "hipster": 710844902585532416
         }
         self.user_ids = {
-            "grant": 454052089979600897
+            "grant": 454052089979600897,
+            "elisabeth": 696911603068829836
         }
         self.channel = "Weather Channel"
 
@@ -99,7 +100,7 @@ class Client(discord.Client):
 
         if message.author == self.user:
             return
-
+        
         # ping (Grant's command I took)
         if message.content.startswith('~ping'):
             before = time()
