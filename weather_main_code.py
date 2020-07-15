@@ -90,6 +90,32 @@ class Client(discord.Client):
             embed.set_footer(text="Local Time: "+response[3])
             await message.channel.send(embed=embed)
 
+
+
+    def validate_code(self,message):
+        flag = False
+        station_code = message.content.split()[1]
+        for i, town in enumerate(towns):
+            if station_code.upper() == town:
+                return(codes[i])
+                flag = True
+        if not flag:
+            try:
+                print(int(station_code[-1]))
+            except ValueError as err:
+                if not station_code.upper() == 'WPI':
+                    station_code = "1"
+            if station_code.upper() == 'WPI':
+                return("KMAWORCE57")
+            elif len(station_code)>11:
+                return("Invalid code!")
+            elif len(station_code)<7:
+                return("Invalid code!")
+            else:
+                return(station_code)
+
+
+
     async def on_ready(self):
         print('Logged on as', self.user)
 
@@ -100,7 +126,7 @@ class Client(discord.Client):
 
         if message.author == self.user:
             return
-        
+
         # ping (Grant's command I took)
         if message.content.startswith('~ping'):
             before = time()
@@ -130,67 +156,33 @@ class Client(discord.Client):
 
 
 
-
-
-        flag = False
         if message.content == '~weather':
             await self.weather_run('KMAWORCE57', message, True)
         elif message.content.startswith('~weather'):
-            station_code = message.content.split()[1]
-            for i, town in enumerate(towns):
-                if station_code.upper() == town:
-                    await self.weather_run(codes[i], message, True)
-                    flag = True
-            if not flag:
-                if station_code.upper() == 'WPI':
-                    await self.weather_run('KMAWORCE57', message, True)
-                elif len(station_code)>11:
-                    await message.channel.send("Invalid code!")
-                elif len(station_code)<7:
-                    await message.channel.send("Invalid code!")
-                else:
-                    await self.weather_run(station_code, message, True)
+            code = self.validate_code(message)
+            if code == "Invalid code!":
+                await message.channel.send("Invalid code!")
+            else:
+                await self.weather_run(code,message,True)
+
 
         if message.content == '~simple':
             await self.weather_run('KMAWORCE57', message, False)
         elif message.content.startswith('~simple'):
-            station_code = message.content.split()[1]
-            for i, town in enumerate(towns):
-                if station_code.upper() == town:
-                    await self.weather_run(codes[i], message, False)
-                    flag = True
-            if not flag:
-                if station_code.upper() == 'WPI':
-                    await self.weather_run('KMAWORCE57', message, False)
-                elif len(station_code)>11:
-                    await message.channel.send("Invalid code!")
-                elif len(station_code)<7:
-                    await message.channel.send("Invalid code!")
-                else:
-                    await self.weather_run(station_code, message, False)
+            code = self.validate_code(message)
+            if code == "Invalid code!":
+                await message.channel.send("Invalid code!")
+            else:
+                await self.weather_run(code,message,False)
 
         if message.content == '~forecast':
             await self.forecast_run('KMAWORCE57', message)
         elif message.content.startswith('~forecast'):
-            forecast_flag = False
-            station_code = message.content.split()[1]
-            for i, town in enumerate(towns):
-                if station_code.upper() == town:
-                    forecast_flag = True
-                    await self.forecast_run(codes[i], message)
-            if not forecast_flag:
-                try:
-                    print(int(station_code[-1]))
-                except ValueError as err:
-                    station_code = "1"
-                if station_code.upper() == 'WPI':
-                    await self.forecast_run('KMAWORCE57', message)
-                elif len(station_code)>11:
-                    await message.channel.send("Invalid code!")
-                elif len(station_code)<7:
-                    await message.channel.send("Invalid code!")
-                else:
-                    await self.forecast_run(station_code, message)
+            code = self.validate_code(message)
+            if code == "Invalid code!":
+                await message.channel.send("Invalid code!")
+            else:
+                await self.forecast_run(code,message)
 
 
 
