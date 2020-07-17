@@ -14,8 +14,8 @@ import random
 URL = 'https://www.wunderground.com/dashboard/pws/'
 weather = Weather()
 
-towns = ["SYC","MICHAEL","AUSTIN","IMMI","NORTHRIDGE","SOUTHBOROUGH","HELOTES","BOSTON","NORFOLK","METHUEN","SPRINGFIELD","MOSCOW","BUCHAREST","PASADENA","CHARLTON","SOUTHBRIDGE","LOVELL","AMMAN","WINCHESTER","BOGOTA","WEYMOUTH","LANTANA"]
-codes = ["KNHPLYMO6","KMDSILVE171","KMAOXFOR33","IBANIJAM2","KCANORTH365","KMASOUTH43","KTXHELOT27","KMABOSTO124","KMANORFO14","KMAMETHU40","KMASPRIN28","IMOSCOW299","IBUCHARE87","KCAPASAD140","KMACHARL47","KMAWESTV8","KMEBRIDG15","IVALLE48","KMAWINCH55","IBOGOT76","KMAWEYMO41","KFLLANTA2"]
+towns = ["SYC","MICHAEL","AUSTIN","IMMI","NORTHRIDGE","SOUTHBOROUGH","HELOTES","BOSTON","NORFOLK","METHUEN","SPRINGFIELD","MOSCOW","BUCHAREST","PASADENA","CHARLTON","SOUTHBRIDGE","LOVELL","AMMAN","WINCHESTER","BOGOTA","WEYMOUTH","LANTANA","MEDIA","PLAINVIEW","MILLIS","SANFERNANDO"]
+codes = ["KNHPLYMO6","KMDSILVE171","KMAOXFOR33","IBANIJAM2","KCANORTH365","KMASOUTH43","KTXHELOT27","KMABOSTO124","KMANORFO14","KMAMETHU40","KMASPRIN28","IMOSCOW299","IBUCHARE87","KCAPASAD140","KMACHARL47","KMAWESTV8","KMEBRIDG15","IVALLE48","KMAWINCH55","IBOGOT76","KMAWEYMO41","KFLLANTA2","KPAMEDIA30","KNYPLAIN9","KMAMILLI11","ISANFERN13"]
 
 
 TOKEN = ""
@@ -71,26 +71,41 @@ class Client(discord.Client):
         await message.channel.send("Recieved! Station Code: " + code + ".")
         response = weather.get_forecast(code)
         #print(response)
-        if response == "THIS FORECAST DOES NOT EXIST":
+        if random.randint(0,100)>2:
+            if response == "THIS FORECAST DOES NOT EXIST":
+                await message.channel.send(response)
+            else:
+                embed=discord.Embed(title="Forecast", description="Current forecast for "+response[4]+".", color=0x002aff)
+                embed.add_field(name=response[0][0], value=response[0][1], inline=True)
+                embed.add_field(name=response[0][2].split()[0], value=response[0][2].split()[1]+"°F", inline=True)
+                embed.add_field(name="Rain Chance / Amount", value=response[0][3], inline=True)
+                embed.add_field(name="Description", value=response[0][4], inline=False)
+                embed.add_field(name=response[1][0], value=response[1][1], inline=True)
+                embed.add_field(name=response[1][2].split()[0], value=response[1][2].split()[1]+"°F", inline=True)
+                embed.add_field(name="Rain Chance / Amount", value=response[1][3], inline=True)
+                embed.add_field(name="Description", value=response[1][4], inline=False)
+                embed.add_field(name=response[2][0], value=response[2][1], inline=True)
+                embed.add_field(name=response[2][2].split()[0], value=response[2][2].split()[1]+"°F", inline=True)
+                embed.add_field(name="Rain Chance / Amount", value=response[2][3], inline=True)
+                embed.add_field(name="Description", value=response[2][4], inline=True)
+                embed.set_footer(text="Local Time: "+response[3])
+                await message.channel.send(embed=embed)
+        else:
+            #Funny idea courtesy of Aidan vC
+            await message.channel.send("Piss rain piss rain!")
+
+    async def temp_run(self, code, message):
+        await message.channel.send("Recieved! Station Code: " + code + ".")
+        response = weather.get_temp(code)
+        if response == "THIS STATION DOES NOT EXIST":
+            await message.channel.send(response)
+        elif response == "THIS STATION IS OFFLINE":
             await message.channel.send(response)
         else:
-            embed=discord.Embed(title="Forecast", description="Current forecast for "+response[4]+".", color=0x002aff)
-            embed.add_field(name=response[0][0], value=response[0][1], inline=True)
-            embed.add_field(name=response[0][2].split()[0], value=response[0][2].split()[1]+"°F", inline=True)
-            embed.add_field(name="Rain Chance / Amount", value=response[0][3], inline=True)
-            embed.add_field(name="Description", value=response[0][4], inline=False)
-            embed.add_field(name=response[1][0], value=response[1][1], inline=True)
-            embed.add_field(name=response[1][2].split()[0], value=response[1][2].split()[1]+"°F", inline=True)
-            embed.add_field(name="Rain Chance / Amount", value=response[1][3], inline=True)
-            embed.add_field(name="Description", value=response[1][4], inline=False)
-            embed.add_field(name=response[2][0], value=response[2][1], inline=True)
-            embed.add_field(name=response[2][2].split()[0], value=response[2][2].split()[1]+"°F", inline=True)
-            embed.add_field(name="Rain Chance / Amount", value=response[2][3], inline=True)
-            embed.add_field(name="Description", value=response[2][4], inline=True)
-            embed.set_footer(text="Local Time: "+response[3])
-            await message.channel.send(embed=embed)
-
-
+            embed=discord.Embed(title="Current Readings for "+response[3]+":", description="Url: " + URL + code, color=0x193ed2)
+            embed.add_field(name="Temperature", value="Current temperature is "+response[0]+" and feels like "+response[1]+"." , inline=True)
+        embed.set_footer(text="Current weather response from station "+code+" at "+response[2])
+        await message.channel.send(embed=embed)
 
     def validate_code(self,message):
         flag = False
@@ -139,9 +154,11 @@ class Client(discord.Client):
             embed.add_field(name="~ping", value="Tests the latency to the bot", inline=False)
             embed.add_field(name="~weather ***code*** (see ~code)", value="Gives the current weather conditions of a specific location", inline=False)
             embed.add_field(name="~forecast ***code*** (see ~code)", value="Gives you the forecast of a specific location", inline=False)
+            embed.add_field(name="~currentTemp ***code*** (see ~code)", value="Gives you the current temperature of a specific location", inline=False)
             embed.add_field(name="~code", value="Tells you how to input a correct code", inline=False)
             embed.add_field(name="~weather or ~weather WPI", value="Gives you the current weather at WPI", inline=False)
             embed.add_field(name="~forecast or ~forecast WPI", value="Gives you the forecast for WPI", inline=False)
+            embed.add_field(name="~currentTemp or ~currentTemp WPI", value="Gives you the current temperature for WPI", inline=False)
             embed.set_footer(text="Command called: ~help")
             await message.channel.send(embed=embed)
 
@@ -184,6 +201,14 @@ class Client(discord.Client):
             else:
                 await self.forecast_run(code,message)
 
+        if message.content == '~currentTemp':
+            await self.temp_run('KMAWORCE57', message)
+        elif message.content.startswith('~currentTemp'):
+            code = self.validate_code(message)
+            if code == "Invalid code!":
+                await message.channel.send("Invalid code!")
+            else:
+                await self.temp_run(code,message)
 
 
 
