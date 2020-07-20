@@ -131,13 +131,40 @@ class Weather():
         soup = BeautifulSoup(html,'html.parser')
 
         temp = soup.find_all("span",attrs= {'class':'wu-value wu-value-to'})
-        watts = soup.find_all("div",attrs={'class':'weather__text'})
 
         if temp != []:
             changed = True
-            information[0] = temp[0].text+"°F"
-            information[1] = temp[1].text+"°F"
+            temps[0] = temp[0].text+"°F"
+            temps[1] = temp[1].text+"°F"
             info = self.get_time(code)
-            information[2] = info[0]
-            information[3] = info[1]
-            return(information)
+            temps[2] = info[0]
+            temps[3] = info[1]
+            return(temps)
+        else:
+            return(temps)
+
+
+    def get_wind(self, code):
+        winds = ["N/A","N/A","N/A","N/A"]
+        local_url = URL + code
+        print(local_url+" at "+datetime.now().strftime("%H:%M:%S"))
+        request = Request(local_url,headers={'User-Agent': user_agent})
+        try:
+            html = urlopen(request).read()
+        except HTTPError as err:
+            return("THIS STATION DOES NOT EXIST")
+
+        soup = BeautifulSoup(html,'html.parser')
+
+        temp = soup.find_all("span",attrs= {'class':'wu-value wu-value-to'})
+
+        if temp != []:
+            changed = True
+            winds[0] = temp[2].text+" mph"
+            winds[1] = temp[3].text+ "mph"
+            info = self.get_time(code)
+            winds[2] = info[0]
+            winds[3] = info[1]
+            return(winds)
+        else:
+            return(winds)

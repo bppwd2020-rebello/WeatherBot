@@ -14,8 +14,8 @@ import random
 URL = 'https://www.wunderground.com/dashboard/pws/'
 weather = Weather()
 
-towns = ["SYC","MICHAEL","AUSTIN","IMMI","NORTHRIDGE","SOUTHBOROUGH","HELOTES","BOSTON","NORFOLK","METHUEN","SPRINGFIELD","MOSCOW","BUCHAREST","PASADENA","CHARLTON","SOUTHBRIDGE","LOVELL","AMMAN","WINCHESTER","BOGOTA","WEYMOUTH","LANTANA","MEDIA","PLAINVIEW","MILLIS","SANFERNANDO"]
-codes = ["KNHPLYMO6","KMDSILVE171","KMAOXFOR33","IBANIJAM2","KCANORTH365","KMASOUTH43","KTXHELOT27","KMABOSTO124","KMANORFO14","KMAMETHU40","KMASPRIN28","IMOSCOW299","IBUCHARE87","KCAPASAD140","KMACHARL47","KMAWESTV8","KMEBRIDG15","IVALLE48","KMAWINCH55","IBOGOT76","KMAWEYMO41","KFLLANTA2","KPAMEDIA30","KNYPLAIN9","KMAMILLI11","ISANFERN13"]
+towns = ["SYC1","SYC2","MICHAEL","AUSTIN","IMMI","NORTHRIDGE","SOUTHBOROUGH","HELOTES","BOSTON","NORFOLK","METHUEN","SPRINGFIELD","MOSCOW","BUCHAREST","PASADENA","CHARLTON","SOUTHBRIDGE","LOVELL","AMMAN","WINCHESTER","BOGOTA","WEYMOUTH","LANTANA","MEDIA","PLAINVIEW","MILLIS","SANFERNANDO","NORWELL"]
+codes = ["KNHPLYMO6","KNHASHLA2","KMDSILVE171","KMAOXFOR33","IBANIJAM2","KCANORTH365","KMASOUTH43","KTXHELOT27","KMABOSTO124","KMANORFO14","KMAMETHU40","KMASPRIN28","IMOSCOW299","IBUCHARE87","KCAPASAD140","KMACHARL47","KMAWESTV8","KMEBRIDG15","IVALLE48","KMAWINCH55","IBOGOT76","KMAWEYMO41","KFLLANTA2","KPAMEDIA30","KNYPLAIN9","KMAMILLI11","ISANFERN13","KMANORWE20"]
 
 
 TOKEN = ""
@@ -29,16 +29,7 @@ with open("token.txt", 'r') as f:
 class Client(discord.Client):
     def __init__(self):
         super().__init__()
-        self.voice = None
-        self.channel = None
-        self.roles = {
-            "mod": 699644834629288007,
-            "hipster": 710844902585532416
-        }
-        self.user_ids = {
-            "grant": 454052089979600897,
-            "elisabeth": 696911603068829836
-        }
+        
         self.channel = "Weather Channel"
 
     #Ben helped me fix this method, credit given
@@ -104,6 +95,19 @@ class Client(discord.Client):
         else:
             embed=discord.Embed(title="Current Readings for "+response[3]+":", description="Url: " + URL + code, color=0x193ed2)
             embed.add_field(name="Temperature", value="Current temperature is "+response[0]+" and feels like "+response[1]+"." , inline=True)
+        embed.set_footer(text="Current weather response from station "+code+" at "+response[2])
+        await message.channel.send(embed=embed)
+
+    async def wind_run(self, code, message):
+        await message.channel.send("Recieved! Station Code: " + code + ".")
+        response = weather.get_wind(code)
+        if response == "THIS STATION DOES NOT EXIST":
+            await message.channel.send(response)
+        elif response == "THIS STATION IS OFFLINE":
+            await message.channel.send(response)
+        else:
+            embed=discord.Embed(title="Current Readings for "+response[3]+":", description="Url: " + URL + code, color=0x193ed2)
+            embed.add_field(name="Wind", value="Current wind speed  is "+response[0]+" and has gusted to "+response[1]+"." , inline=True)
         embed.set_footer(text="Current weather response from station "+code+" at "+response[2])
         await message.channel.send(embed=embed)
 
@@ -209,6 +213,15 @@ class Client(discord.Client):
                 await message.channel.send("Invalid code!")
             else:
                 await self.temp_run(code,message)
+
+        if message.content == '~currentWind':
+            await self.wind_run('KMAWORCE57', message)
+        elif message.content.startswith('~currentWind'):
+            code = self.validate_code(message)
+            if code == "Invalid code!":
+                await message.channel.send("Invalid code!")
+            else:
+                await self.wind_run(code,message)
 
 
 
