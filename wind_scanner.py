@@ -9,10 +9,13 @@ from weather_code import Weather
 import random
 from bs4 import BeautifulSoup
 from urllib.error import HTTPError
+from urllib.error import URLError
 
 weather = Weather()
 user_agent = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/35.0.1916.47 Safari/537.36'
 today = date.today()
+URL = 'https://www.wunderground.com/dashboard/pws/KMAOXFOR33'
+
 
 class WindScanner():
     def error(self):
@@ -20,7 +23,6 @@ class WindScanner():
 
     def __init__(self):
         super().__init__()
-        self.url = 'https://www.wunderground.com/dashboard/pws/KMAOXFOR33'
 
     def run(self):
         print("Wind Scanner is online!")
@@ -56,17 +58,14 @@ class WindScanner():
     def get_wind(self):
         winds = ["N/A","N/A"]
 
-        #print(self.url+" at "+datetime.now().strftime("%H:%M:%S"))
-        request = Request(self.url,headers={'User-Agent': user_agent})
+        #print(URL+" at "+datetime.now().strftime("%H:%M:%S"))
+        request = Request(URL,headers={'User-Agent': user_agent})
         try:
             html = urlopen(request).read()
-        except HTTPError as err:
-            return("THIS STATION DOES NOT EXIST")
-
-        soup = BeautifulSoup(html,'html.parser')
-
-        temp = soup.find_all("span",attrs= {'class':'wu-value wu-value-to'})
-
+            soup = BeautifulSoup(html,'html.parser')
+            temp = soup.find_all("span",attrs= {'class':'wu-value wu-value-to'})
+        except ( HTTPError, URLError, ValueError):
+            return("ERROR")
 
         if temp != []:
             changed = True
