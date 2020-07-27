@@ -16,8 +16,7 @@ weather = Weather()
 
 towns = ["SYC","MICHAEL","MERVE","AUSTIN","IMMI","NORTHRIDGE","SOUTHBOROUGH","HELOTES","BOSTON","NORFOLK","METHUEN","SPRINGFIELD","MOSCOW","BUCHAREST","PASADENA","CHARLTON","SOUTHBRIDGE","LOVELL","AMMAN","WINCHESTER","BOGOTA","WEYMOUTH","LANTANA","MEDIA","PLAINVIEW","MILLIS","SANFERNANDO","NORWELL"]
 codes = ["KNHASHLA2","KMDSILVE171","KMDSILVE171","KMAOXFOR33","IBANIJAM2","KCANORTH365","KMASOUTH43","KTXHELOT27","KMABOSTO124","KMANORFO14","KMAMETHU40","KMASPRIN28","IMOSCOW299","IBUCHARE87","KCAPASAD140","KMACHARL47","KMAWESTV8","KMEBRIDG15","IVALLE48","KMAWINCH55","IBOGOT76","KMAWEYMO41","KFLLANTA2","KPAMEDIA30","KNYPLAIN9","KMAMILLI11","ISANFERN13","KMANORWE20"]
-#embed_celcius = None
-#embed_fahrenheit = None
+
 
 TOKEN = ""
 
@@ -234,9 +233,15 @@ class Client(discord.Client):
             return
 
         # ping (Grant's command I took)
-        if message.content.startswith('~ping'):
+        if message.content == '~ping':
             before = time()
             await message.channel.send('Pong!')
+            ms = (time() - before) * 1000
+            await message.channel.send('Ping took: {}ms'.format(int(ms)))
+
+        if message.content == '~pingo':
+            before = time()
+            await message.channel.send('Pongo!')
             ms = (time() - before) * 1000
             await message.channel.send('Ping took: {}ms'.format(int(ms)))
 

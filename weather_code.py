@@ -75,10 +75,6 @@ class Weather():
             wind_gust = soup.find("div", attrs = {'class':'weather__data weather__wind-gust'}).find("div", attrs = {'class':'weather__text'}).find("span", attrs = {'class':'test-false wu-unit wu-unit-speed ng-star-inserted'}).find("span", attrs = {'class':'wu-value wu-value-to'}).text
         except AttributeError:
             wind_gust = "--"
-        #feels_like_temp = soup.find("div",attrs={'class':'feels-like-temp'}).find("span",attrs={'class':'wu-value wu-value-to'}).text
-        #wind_direction = soup.find("span", attrs={'class':'text-bold'}).text
-        #wind_speed = soup.find("div", attrs = {'class':'wind-circle-container'}).text
-        #wind_gust = soup.find("span",attrs= {'class':'test-false wu-unit wu-unit-speed ng-star-inserted'}).text.split('\xa0')[0]
 
         summary = soup.find("div",attrs={'class':'weather__summary'}).find_all("div",attrs={'class':'weather__text'})
 
@@ -228,5 +224,4 @@ class Weather():
             forecast = [closest,middle,furthest,info[0],info[1]]
             return(forecast)
         except (HTTPError,IndexError) as err:
-            print(err)
             return("The town and state combination you have entered failed, please make sure this is a valid combination.")
