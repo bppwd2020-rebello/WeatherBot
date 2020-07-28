@@ -1,8 +1,10 @@
 import discord
+from bs4 import BeautifulSoup
 from discord.ext import commands
 from discord.ext.commands import Bot
 from discord import FFmpegPCMAudio
 import asyncio
+import aiohttp
 import filecmp
 from datetime import datetime
 from time import time
@@ -36,7 +38,7 @@ class Client(discord.Client):
     async def weather_run(self, code, message, flag):
         channel = message.channel
         await message.channel.send("Recieved! Station Code: " + code + ".")
-        response = weather.get_weather(code)
+        response = await weather.get_weather(code)
         if response == "THIS STATION DOES NOT EXIST":
             await message.channel.send(response)
         elif response == "THIS STATION IS OFFLINE":
@@ -62,13 +64,36 @@ class Client(discord.Client):
 
             global embed_celcius
             embed_celcius=discord.Embed(title="Current Readings for "+response[13]+":", description="Url: " + URL + code+"\n Units: Imperial / **Metric**", color=0x193ed2)
-            temperature = str(round(((float(response[0])-32)*5/9),1))
-            feels_like = str(round(((float(response[1])-32)*5/9),1))
-            dew_point = str(round(((float(response[5])-32)*5/9),1))
-            wind_speed = str(round(float(response[3])*1.609344,1))
-            wind_gust = str(round(float(response[4])*1.609344,1))
-            rainfall_rate = str(round(float(response[6])/0.3937,2))
-            rainfall_today = str(round(float(response[7])/0.3937,2))
+
+            try:
+                temperature = str(round(((float(response[0])-32)*5/9),1))
+            except ValueError:
+                temperature = "--"
+            try:
+                feels_like = str(round(((float(response[1])-32)*5/9),1))
+            except ValueError:
+                feels_like = "--"
+            try:
+                dew_point = str(round(((float(response[5])-32)*5/9),1))
+            except ValueError:
+                dew_point = "--"
+            try:
+                wind_speed = str(round(float(response[3])*1.609344,1))
+            except ValueError:
+                wind_speed = "--"
+            try:
+                wind_gust = str(round(float(response[4])*1.609344,1))
+            except ValueError:
+                wind_gust = "--"
+            try:
+                rainfall_rate = str(round(float(response[6])/0.3937,2))
+            except ValueError:
+                rainfall_rate = "--"
+            try:
+                rainfall_today = str(round(float(response[7])/0.3937,2))
+            except ValueError:
+                rainfall_today= "--"
+
             embed_celcius.add_field(name="Temperature", value=temperature +"°C", inline=True)
             embed_celcius.add_field(name="Feels Like Temperature", value=feels_like+"°C", inline=True)
             embed_celcius.add_field(name="Dew Point", value=dew_point+"°C", inline=True)
@@ -95,7 +120,7 @@ class Client(discord.Client):
 
     async def forecast_run(self, town, state, flag, message):
         await message.channel.send("Recieved! Town Name: "+town+", "+state+".")
-        response = weather.get_forecast(town,state,flag)
+        response = await weather.get_forecast(town,state,flag)
         #print(response)
         if random.randint(0,100)>2:
             if response == "The town and state combination you have entered failed, please make sure this is a valid combination. Sometimes the website may break, try again if you know this is a correct combonation.":
@@ -153,7 +178,7 @@ class Client(discord.Client):
 
     async def temp_run(self, code, message):
         await message.channel.send("Recieved! Station Code: " + code + ".")
-        response = weather.get_temp(code)
+        response =await  weather.get_temp(code)
         if response == "THIS STATION DOES NOT EXIST":
             await message.channel.send(response)
         elif response == "THIS STATION IS OFFLINE":
@@ -179,7 +204,10 @@ class Client(discord.Client):
 
     def validate_code(self,message):
         flag = False
-        station_code = message.content.split()[1]
+        try:
+            station_code = message.content.split()[1]
+        except IndexError:
+            return("Invalid code!")
         for i, town in enumerate(towns):
             if station_code.upper() == town:
                 return(codes[i])
@@ -249,6 +277,7 @@ class Client(discord.Client):
             embed=discord.Embed(title="Help:", description="All the commands currently callable for the bot.", color=0x193ed2)
             embed.add_field(name="~ping", value="Tests the latency to the bot", inline=False)
             embed.add_field(name="~weather ***code*** (see ~code)", value="Gives the current weather conditions of a specific location", inline=False)
+            embed.add_field(name="~weather ***town state abbreviation***", value="Gives the current weather conditions of a specific location.\n Town names with a space: Replace spaces with a - \n Internationals: Do Town, Country Abbrevation then an i to get yours", inline=False)
             embed.add_field(name="~forecast ***town state abbreviation*** ", value="Gives you the forecast of a specific location.\n Town names with a space: Replace spaces with a - \n Internationals: Do Town, Country Abbrevation then an i to get yours", inline=False)
             embed.add_field(name="~currentTemp ***code*** (see ~code)", value="Gives you the current temperature of a specific location", inline=False)
             embed.add_field(name="~code", value="Tells you how to input a correct code", inline=False)
@@ -272,11 +301,41 @@ class Client(discord.Client):
         if message.content == '~weather':
             await self.weather_run('KMAWORCE57', message, True)
         elif message.content.startswith('~weather'):
-            code = self.validate_code(message)
-            if code == "Invalid code!":
-                await message.channel.send("Invalid code!")
+            message_length = len(message.content.split(" "))
+            if message_length == 2:
+                code = self.validate_code(message)
+                if code == "Invalid code!":
+                    await message.channel.send("Invalid code!")
+                else:
+                    await self.weather_run(code,message,True)
+            elif message_length==3 or (message_length == 4 and message.content.split(" ")[-1].upper()=="I"):
+                async with aiohttp.ClientSession() as session:
+                    if message_length == 3:
+                        link = 'https://www.wunderground.com/weather/us/'
+                    else:
+                        link = 'https://www.wunderground.com/weather/'
+                    html = await fetch(session, link+message.content.split(" ")[2]+"/"+message.content.split(" ")[1])
+                    soup = BeautifulSoup(html,'html.parser')
+                    try:
+                        new_code = soup.find("span", attrs = {'class':'station-id'}).text
+                        try:
+                            new_code = new_code[1:-1]
+                            if len(new_code)==4:
+                                await message.channel.send("The nearest station is an airport and only a forecast is availible")
+                                if message.content.split(" ")[-1].upper()=="I": flag = True
+                                else: flag = false
+                                await self.forecast_run(message.content.split(" ")[1],message.content.split(" ")[2],flag,message)
+                            else:
+                                await self.weather_run(new_code,message,True)
+                        except IndexError:
+                            await message.channel.send("Invalid code!")
+                    except AttributeError:
+                        await message.channel.send("Invalid code!")
             else:
-                await self.weather_run(code,message,True)
+                await message.channel.send("Invalid code!")
+
+
+
 
 
         if message.content == '~simple':
@@ -322,6 +381,9 @@ class Client(discord.Client):
 
 
 
+async def fetch(session, url):
+    async with session.get(url) as response:
+        return await response.text()
 
 
 

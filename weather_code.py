@@ -3,6 +3,8 @@ from urllib.request import *
 from urllib.error import HTTPError
 from datetime import datetime
 from time import sleep
+import aiohttp
+import asyncio
 
 user_agent = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/35.0.1916.47 Safari/537.36'
 
@@ -21,11 +23,11 @@ class Weather():
         self.data = []
 
 
-    def get_time(self,code):
+    async def get_time(self,code):
         local_url = URL2 + "us/state/town/" + code
-        request = Request(local_url,headers={'User-Agent': user_agent})
         try:
-            html = urlopen(request).read()
+            async with aiohttp.ClientSession() as session:
+                html = await fetch(session, local_url)
             soup = BeautifulSoup(html,'html.parser')
             time = soup.find("p", attrs={'class':'timestamp'}).text
             real_time = time.split()[1].split(":")[0]+datetime.now().strftime(":%M")
@@ -35,20 +37,18 @@ class Weather():
             location = location.split(",")[0]+" , "+region
             info = [time,location]
             return(info)
-        except HTTPError as err:
+        except (HTTPError,AttributeError) as err:
             return("Information Unavailible")
 
 
-    def get_weather(self, code):
+    async def get_weather(self, code):
         changed = False
         local_url = URL + code
         print(local_url+" at "+datetime.now().strftime("%H:%M:%S"))
-        request = Request(local_url,headers={'User-Agent': user_agent})
         try:
-            site =urlopen(request)
-            sleep(1.0)
-            html = site.read()
-        except HTTPError as err:
+            async with aiohttp.ClientSession() as session:
+                html = await fetch(session, local_url)
+        except (HTTPError,AttributeError) as err:
             return("THIS STATION DOES NOT EXIST")
 
         soup = BeautifulSoup(html,'html.parser')
@@ -75,8 +75,10 @@ class Weather():
             wind_gust = soup.find("div", attrs = {'class':'weather__data weather__wind-gust'}).find("div", attrs = {'class':'weather__text'}).find("span", attrs = {'class':'test-false wu-unit wu-unit-speed ng-star-inserted'}).find("span", attrs = {'class':'wu-value wu-value-to'}).text
         except AttributeError:
             wind_gust = "--"
-
-        summary = soup.find("div",attrs={'class':'weather__summary'}).find_all("div",attrs={'class':'weather__text'})
+        try:
+            summary = soup.find("div",attrs={'class':'weather__summary'}).find_all("div",attrs={'class':'weather__text'})
+        except AttributeError:
+            return("THIS STATION DOES NOT EXIST")
 
         dewpoint = summary[0]
         rainfall_rate = summary[1]
@@ -84,7 +86,8 @@ class Weather():
         humidity = summary[3]
         rainfall_today = summary[4]
         uv_radiation = summary[5]
-
+        if main_temp == "--":
+            return("THIS STATION IS OFFLINE")
 
         if summary != []:
             changed = True
@@ -104,7 +107,7 @@ class Weather():
             if watts != None and watts[len(watts)-1].text.endswith('watts/m²'):
                 information[11] = watts[len(watts)-1].text
             try:
-                info = self.get_time(code)
+                info = await self.get_time(code)
                 information[12] = info[0]
                 information[13] = info[1]
             except AttributeError:
@@ -130,14 +133,14 @@ class Weather():
         else:
             return("THIS STATION IS OFFLINE")
 
-    def get_temp(self, code):
+    async def get_temp(self, code):
         temps = ["N/A","N/A","N/A","N/A"]
         local_url = URL + code
         print(local_url+" at "+datetime.now().strftime("%H:%M:%S"))
-        request = Request(local_url,headers={'User-Agent': user_agent})
         try:
-            html = urlopen(request).read()
-        except HTTPError as err:
+            async with aiohttp.ClientSession() as session:
+                html = await fetch(session, local_url)
+        except (HTTPError,AttributeError) as err:
             return("THIS STATION DOES NOT EXIST")
 
         soup = BeautifulSoup(html,'html.parser')
@@ -148,7 +151,7 @@ class Weather():
             changed = True
             temps[0] = temp[0].text+"°F"
             temps[1] = temp[1].text+"°F"
-            info = self.get_time(code)
+            info = await self.get_time(code)
             temps[2] = info[0]
             temps[3] = info[1]
             return(temps)
@@ -156,14 +159,14 @@ class Weather():
             return(temps)
 
 
-    def get_wind(self, code):
+    async def get_wind(self, code):
         winds = ["N/A","N/A","N/A","N/A"]
         local_url = URL + code
         print(local_url+" at "+datetime.now().strftime("%H:%M:%S"))
-        request = Request(local_url,headers={'User-Agent': user_agent})
         try:
-            html = urlopen(request).read()
-        except HTTPError as err:
+            async with aiohttp.ClientSession() as session:
+                html = await fetch(session, local_url)
+        except (HTTPError,AttributeError) as err:
             return("THIS STATION DOES NOT EXIST")
 
         soup = BeautifulSoup(html,'html.parser')
@@ -174,7 +177,7 @@ class Weather():
             changed = True
             winds[0] = temp[2].text+" mph"
             winds[1] = temp[3].text+ "mph"
-            info = self.get_time(code)
+            info = await self.get_time(code)
             winds[2] = info[0]
             winds[3] = info[1]
             return(winds)
@@ -182,16 +185,15 @@ class Weather():
             return(winds)
 
 
-    def get_forecast(self,town,state,flag):
+    async def get_forecast(self,town,state,flag):
         if flag:
             local_url = URL2 + state+"/"+town+"/"
         else:
             local_url = URL2 + "us/"+state+"/"+town+"/"
         print(local_url+" at "+datetime.now().strftime("%H:%M:%S"))
-        request = Request(local_url,headers={'User-Agent': user_agent})
-        #html = urlopen(request).read()
         try:
-            html = urlopen(request).read()
+            async with aiohttp.ClientSession() as session:
+                html = await fetch(session, local_url)
             soup = BeautifulSoup(html,'html.parser')
 
 
@@ -223,5 +225,9 @@ class Weather():
 
             forecast = [closest,middle,furthest,info[0],info[1]]
             return(forecast)
-        except (HTTPError,IndexError) as err:
+        except (HTTPError,IndexError,AttributeError) as err:
             return("The town and state combination you have entered failed, please make sure this is a valid combination.")
+
+async def fetch(session, url):
+    async with session.get(url) as response:
+        return await response.text()

@@ -10,8 +10,6 @@ import sys
 from weather_code import Weather
 import random
 from bs4 import BeautifulSoup
-#from urllib.error import HTTPError
-#from urllib.error import URLError
 
 
 weather = Weather()
@@ -70,7 +68,7 @@ async def get_wind():
 
         wind_speed = soup.find("div", attrs = {'class':'weather__data weather__wind-gust'}).find("div", attrs = {'class':'weather__text'}).find("span", attrs = {'class':'test-false wu-unit ng-star-inserted'}).find("span", attrs = {'class':'wu-value wu-value-to'}).text
         wind_gust = soup.find("div", attrs = {'class':'weather__data weather__wind-gust'}).find("div", attrs = {'class':'weather__text'}).find("span", attrs = {'class':'test-false wu-unit wu-unit-speed ng-star-inserted'}).find("span", attrs = {'class':'wu-value wu-value-to'}).text
-    except (HTTPError, URLError, ValueError) as err:
+    except (AttributeError, ValueError) as err:
         print("Hit an error: "+err)
         return(winds)
     if wind_speed != None and wind_gust != None:
