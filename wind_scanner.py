@@ -69,7 +69,7 @@ async def get_wind():
         wind_speed = soup.find("div", attrs = {'class':'weather__data weather__wind-gust'}).find("div", attrs = {'class':'weather__text'}).find("span", attrs = {'class':'test-false wu-unit ng-star-inserted'}).find("span", attrs = {'class':'wu-value wu-value-to'}).text
         wind_gust = soup.find("div", attrs = {'class':'weather__data weather__wind-gust'}).find("div", attrs = {'class':'weather__text'}).find("span", attrs = {'class':'test-false wu-unit wu-unit-speed ng-star-inserted'}).find("span", attrs = {'class':'wu-value wu-value-to'}).text
     except (AttributeError, ValueError) as err:
-        print("Hit an error: "+err)
+        print(err)
         return(winds)
     if wind_speed != None and wind_gust != None:
         winds[0] = float(wind_speed)
