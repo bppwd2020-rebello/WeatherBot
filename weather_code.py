@@ -185,11 +185,17 @@ class Weather():
             return(winds)
 
 
-    async def get_forecast(self,town,state,flag):
+    async def get_forecast(self,town,state,flag,broken_flag,code):
         if flag:
-            local_url = URL2 + state+"/"+town+"/"
+            if broken_flag:
+                local_url = URL2 + state+"/"+town+"/"+code
+            else:
+                local_url = URL2 + state+"/"+town+"/"
         else:
-            local_url = URL2 + "us/"+state+"/"+town+"/"
+            if broken_flag:
+                local_url = URL2 + "us/"+state+"/"+town+"/"+code
+            else:
+                local_url = URL2 + "us/"+state+"/"+town+"/"
         print(local_url+" at "+datetime.now().strftime("%H:%M:%S"))
         try:
             async with aiohttp.ClientSession() as session:

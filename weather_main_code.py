@@ -16,8 +16,8 @@ import random
 URL = 'https://www.wunderground.com/dashboard/pws/'
 weather = Weather()
 
-towns = ["SYC","MICHAEL","MERVE","AUSTIN","IMMI","NORTHRIDGE","SOUTHBOROUGH","HELOTES","BOSTON","NORFOLK","METHUEN","SPRINGFIELD","MOSCOW","BUCHAREST","PASADENA","CHARLTON","SOUTHBRIDGE","LOVELL","AMMAN","WINCHESTER","BOGOTA","WEYMOUTH","LANTANA","MEDIA","PLAINVIEW","MILLIS","SANFERNANDO","NORWELL"]
-codes = ["KNHASHLA2","KMDSILVE171","KMDSILVE171","KMAOXFOR33","IBANIJAM2","KCANORTH365","KMASOUTH43","KTXHELOT27","KMABOSTO124","KMANORFO14","KMAMETHU40","KMASPRIN28","IMOSCOW299","IBUCHARE87","KCAPASAD140","KMACHARL47","KMAWESTV8","KMEBRIDG15","IVALLE48","KMAWINCH55","IBOGOT76","KMAWEYMO41","KFLLANTA2","KPAMEDIA30","KNYPLAIN9","KMAMILLI11","ISANFERN13","KMANORWE20"]
+towns = ["SYC","MICHAEL","MERVE","AUSTIN","IMMI","NORTHRIDGE","SOUTHBOROUGH","HELOTES","BOSTON","NORFOLK","METHUEN","SPRINGFIELD","MOSCOW","BUCHAREST","PASADENA","CHARLTON","SOUTHBRIDGE","LOVELL","AMMAN","WINCHESTER","BOGOTA","WEYMOUTH","LANTANA","MEDIA","PLAINVIEW","MILLIS","SANFERNANDO","NORWELL","ADABA"]
+codes = ["KNHASHLA2","KMDSILVE171","KMDSILVE171","KMAOXFOR33","IBANIJAM2","KCANORTH365","KMASOUTH43","KTXHELOT27","KMABOSTO124","KMANORFO14","KMAMETHU40","KMASPRIN28","IMOSCOW299","IBUCHARE87","KCAPASAD140","KMACHARL47","KMAWESTV8","KMEBRIDG15","IVALLE48","KMAWINCH55","IBOGOT76","KMAWEYMO41","KFLLANTA2","KPAMEDIA30","KNYPLAIN9","KMAMILLI11","ISANFERN13","KMANORWE20","ISOUTH677"]
 
 
 TOKEN = ""
@@ -118,9 +118,9 @@ class Client(discord.Client):
                 await reactions_embed.add_reaction(emoji)
 
 
-    async def forecast_run(self, town, state, flag, message):
+    async def forecast_run(self, town, state, flag, broken_flag, message,code):
         await message.channel.send("Recieved! Town Name: "+town+", "+state+".")
-        response = await weather.get_forecast(town,state,flag)
+        response = await weather.get_forecast(town,state,flag,broken_flag,code)
         #print(response)
         if random.randint(0,100)>2:
             if response == "The town and state combination you have entered failed, please make sure this is a valid combination. Sometimes the website may break, try again if you know this is a correct combonation.":
@@ -366,18 +366,27 @@ class Client(discord.Client):
                 await self.wind_run(code,message)
 
         if message.content == '~forecast':
-            await self.forecast_run("Worcester","MA",False, message)
+            await self.forecast_run("Worcester","MA",False, False, message,"NULL")
         elif message.content.startswith('~forecast'):
+            message_length = len(message.content.split(" "))
             if message.content.split()[-1].upper()=="I":
                 flag = True
             else:
                 flag = False
-            town = message.content.split()[1]
-            try:
-                state = message.content.split()[2]
-                await self.forecast_run(town,state,flag,message)
-            except IndexError:
-                await message.channel.send("Invalid code!")
+            if message_length == 2:
+                code = self.validate_code(message)
+                print(code)
+                if code == "Invalid code!":
+                    await message.channel.send("Invalid code!")
+                else:
+                    await self.forecast_run("Special Case","No Town Provided",flag,True,message,code)
+            else:
+                town = message.content.split()[1]
+                try:
+                    state = message.content.split()[2]
+                    await self.forecast_run(town,state,flag,False,message,"NULL")
+                except IndexError:
+                    await message.channel.send("Invalid code!")
 
 
 
