@@ -195,7 +195,7 @@ class Client(discord.Client):
                         rainfall_today = str(round(float(embed_fields[7].value.split("in")[0])/0.3937,2))
                     except ValueError:
                         rainfall_today= "--"
-                    new_description = embed.description.text.split("\n")[0] + "\n Units: Imperial / **Metric**"
+                    new_description = embed.description.split("\n")[0] + "\n Units: Imperial / **Metric**"
                     new_embed = discord.Embed(title=embed.title, description=new_description, color=0x193ed2)
                     new_embed.add_field(name="Temperature", value=temperature +"°C", inline=True)
                     new_embed.add_field(name="Feels Like Temperature", value=feels_like+"°C", inline=True)
@@ -246,7 +246,7 @@ class Client(discord.Client):
                         rainfall_today = str(round(float(embed_fields[7].value.split("cm")[0])*0.3937,2))
                     except ValueError:
                         rainfall_today= "--"
-                    new_description = embed.description.text.split("\n")[0] + "\n Units: **Imperial** / Metric"
+                    new_description = embed.description.split("\n")[0] + "\n Units: **Imperial** / Metric"
                     new_embed = discord.Embed(title=embed.title, description=new_description, color=0x193ed2)
                     new_embed.add_field(name="Temperature", value=temperature +"°F", inline=True)
                     new_embed.add_field(name="Feels Like Temperature", value=feels_like+"°F", inline=True)
