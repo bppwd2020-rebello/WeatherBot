@@ -44,74 +44,23 @@ class Client(discord.Client):
         elif response == "THIS STATION IS OFFLINE":
             await message.channel.send(response)
         else:
-            global embed_fahrenheit
-            embed_fahrenheit=discord.Embed(title="Current Readings for "+response[13]+":", description="Url: " + URL + code+"\n Units: **Imperial** / Metric", color=0x193ed2)
-            embed_fahrenheit.add_field(name="Temperature", value=response[0]+"°F", inline=True)
-            embed_fahrenheit.add_field(name="Feels Like Temperature", value=response[1]+"°F", inline=True)
-            embed_fahrenheit.add_field(name="Dew Point", value=response[5]+"°F", inline=True)
-            embed_fahrenheit.add_field(name="Wind Speed", value=response[3]+"mph", inline=True)
-            embed_fahrenheit.add_field(name="Wind Gust", value=response[4]+"mph", inline=True)
-            embed_fahrenheit.add_field(name="Wind Direction", value=response[2], inline=True)
-            embed_fahrenheit.add_field(name="Rainfall Rate", value=response[6]+"in/hr", inline=True)
-            embed_fahrenheit.add_field(name="Rainfall Today", value=response[7]+"in", inline=True)
-            embed_fahrenheit.add_field(name="Humidity", value=response[8], inline=True)
+            embed=discord.Embed(title="Current Readings for "+response[13]+":", description="Url: " + URL + code+"\n Units: **Imperial** / Metric", color=0x193ed2)
+            embed.add_field(name="Temperature", value=response[0]+"°F", inline=True)
+            embed.add_field(name="Feels Like Temperature", value=response[1]+"°F", inline=True)
+            embed.add_field(name="Dew Point", value=response[5]+"°F", inline=True)
+            embed.add_field(name="Wind Speed", value=response[3]+"mph", inline=True)
+            embed.add_field(name="Wind Gust", value=response[4]+"mph", inline=True)
+            embed.add_field(name="Wind Direction", value=response[2], inline=True)
+            embed.add_field(name="Rainfall Rate", value=response[6]+"in/hr", inline=True)
+            embed.add_field(name="Rainfall Today", value=response[7]+"in", inline=True)
+            embed.add_field(name="Humidity", value=response[8], inline=True)
             if flag:
-                embed_fahrenheit.add_field(name="Pressure", value=response[9], inline=True)
-                embed_fahrenheit.add_field(name="UV Radiation Value", value=response[10], inline=True)
-                embed_fahrenheit.add_field(name="Solar Radiation", value=response[11], inline=True)
-            embed_fahrenheit.set_footer(text="Current weather response from station "+code+" at "+response[12])
+                embed.add_field(name="Pressure", value=response[9], inline=True)
+                embed.add_field(name="UV Radiation Value", value=response[10], inline=True)
+                embed.add_field(name="Solar Radiation", value=response[11], inline=True)
+            embed.set_footer(text="Current weather response from station "+code+" at "+response[12])
 
-
-            global embed_celcius
-            embed_celcius=discord.Embed(title="Current Readings for "+response[13]+":", description="Url: " + URL + code+"\n Units: Imperial / **Metric**", color=0x193ed2)
-
-            try:
-                temperature = str(round(((float(response[0])-32)*5/9),1))
-            except ValueError:
-                temperature = "--"
-            try:
-                feels_like = str(round(((float(response[1])-32)*5/9),1))
-            except ValueError:
-                feels_like = "--"
-            try:
-                dew_point = str(round(((float(response[5])-32)*5/9),1))
-            except ValueError:
-                dew_point = "--"
-            try:
-                wind_speed = str(round(float(response[3])*1.609344,1))
-            except ValueError:
-                wind_speed = "--"
-            try:
-                wind_gust = str(round(float(response[4])*1.609344,1))
-            except ValueError:
-                wind_gust = "--"
-            try:
-                rainfall_rate = str(round(float(response[6])/0.3937,2))
-            except ValueError:
-                rainfall_rate = "--"
-            try:
-                rainfall_today = str(round(float(response[7])/0.3937,2))
-            except ValueError:
-                rainfall_today= "--"
-
-            embed_celcius.add_field(name="Temperature", value=temperature +"°C", inline=True)
-            embed_celcius.add_field(name="Feels Like Temperature", value=feels_like+"°C", inline=True)
-            embed_celcius.add_field(name="Dew Point", value=dew_point+"°C", inline=True)
-            embed_celcius.add_field(name="Wind Speed", value=wind_speed+"km/h", inline=True)
-            embed_celcius.add_field(name="Wind Gust", value=wind_gust+"km/h", inline=True)
-            embed_celcius.add_field(name="Wind Direction", value=response[2], inline=True)
-            embed_celcius.add_field(name="Rainfall Rate", value=rainfall_rate+"cm/hr", inline=True)
-            embed_celcius.add_field(name="Rainfall Today", value=rainfall_today+"cm", inline=True)
-            embed_celcius.add_field(name="Humidity", value=response[8], inline=True)
-            if flag:
-                embed_celcius.add_field(name="Pressure", value=response[9], inline=True)
-                embed_celcius.add_field(name="UV Radiation Value", value=response[10], inline=True)
-                embed_celcius.add_field(name="Solar Radiation", value=response[11], inline=True)
-            embed_celcius.set_footer(text="Current weather response from station "+code+" at "+response[12])
-
-
-
-            embed_message = await message.channel.send(embed=embed_fahrenheit)
+            embed_message = await message.channel.send(embed=embed)
             reactions_embed = await message.channel.fetch_message(embed_message.id)
             reactions = ['\U0001f1ee','\U0001f1f2']
             for emoji in reactions:
@@ -142,28 +91,6 @@ class Client(discord.Client):
                 embed_imperial.add_field(name="Description", value=response[2][4], inline=True)
                 embed_imperial.set_footer(text="Local Time: "+response[3])
 
-
-                global embed_metric
-                temperature1 = str(int(round(((float(response[0][2].split()[1])-32)*5/9),0)))
-                temperature2 = str(int(round(((float(response[1][2].split()[1])-32)*5/9),0)))
-                temperature3 = str(int(round(((float(response[2][2].split()[1])-32)*5/9),0)))
-                rain1 = response[0][3].split("/")[0]+"/ "+str(round(float(response[0][3].split(" ")[3].split('\xa0')[0])/0.3937,2))
-                rain2 = response[1][3].split("/")[0]+"/ "+str(round(float(response[1][3].split(" ")[3].split('\xa0')[0])/0.3937,2))
-                rain3 = response[2][3].split("/")[0]+"/ "+str(round(float(response[2][3].split(" ")[3].split('\xa0')[0])/0.3937,2))
-                embed_metric =discord.Embed(title="Forecast", description="Current forecast for "+response[4]+"."+"\n Units: Imperial / **Metric**", color=0x002aff)
-                embed_metric.add_field(name=response[0][0], value=response[0][1], inline=True)
-                embed_metric.add_field(name=response[0][2].split()[0], value=temperature1+"°C", inline=True)
-                embed_metric.add_field(name="Rain Chance / Amount", value=rain1+" cm", inline=True)
-                embed_metric.add_field(name="Description", value=response[0][4], inline=False)
-                embed_metric.add_field(name=response[1][0], value=response[1][1], inline=True)
-                embed_metric.add_field(name=response[1][2].split()[0], value=temperature2+"°C", inline=True)
-                embed_metric.add_field(name="Rain Chance / Amount", value=rain2+" cm", inline=True)
-                embed_metric.add_field(name="Description", value=response[1][4], inline=False)
-                embed_metric.add_field(name=response[2][0], value=response[2][1], inline=True)
-                embed_metric.add_field(name=response[2][2].split()[0], value=temperature3+"°C", inline=True)
-                embed_metric.add_field(name="Rain Chance / Amount", value=rain3+" cm", inline=True)
-                embed_metric.add_field(name="Description", value=response[2][4], inline=True)
-                embed_metric.set_footer(text="Local Time: "+response[3])
 
                 embed_message = await message.channel.send(embed=embed_imperial)
                 reactions_embed = await message.channel.fetch_message(embed_message.id)
@@ -237,22 +164,185 @@ class Client(discord.Client):
     async def edit_message(self,reaction,user):
         if reaction.emoji == '\U0001f1f2' and user.id != 731989043713146990:
             if reaction.message.author.id == 731989043713146990:
-                await reaction.message.edit(embed=embed_celcius)
+                embed = reaction.message.embeds[0]
+                embed_fields = embed.fields
+                if embed_fields[0].value.split("°")[1] == "F":
+                    try:
+                        temperature = str(round(((float(embed_fields[0].value.split("°")[0])-32)*5/9),1))
+                    except ValueError:
+                        temperature = "--"
+                    try:
+                        feels_like = str(round(((float(embed_fields[1].value.split("°")[0])-32)*5/9),1))
+                    except ValueError:
+                        feels_like = "--"
+                    try:
+                        dew_point = str(round(((float(embed_fields[2].value.split("°")[0])-32)*5/9),1))
+                    except ValueError:
+                        dew_point = "--"
+                    try:
+                        wind_speed = str(round(float(embed_fields[3].value.split("mph")[0])*1.609344,1))
+                    except ValueError:
+                        wind_speed = "--"
+                    try:
+                        wind_gust = str(round(float(embed_fields[4].value.split("mph")[0])*1.609344,1))
+                    except ValueError:
+                        wind_gust = "--"
+                    try:
+                        rainfall_rate = str(round(float(embed_fields[6].value.split("in")[0])/0.3937,2))
+                    except ValueError:
+                        rainfall_rate = "--"
+                    try:
+                        rainfall_today = str(round(float(embed_fields[7].value.split("in")[0])/0.3937,2))
+                    except ValueError:
+                        rainfall_today= "--"
+                    new_description = embed.description.text.split("\n")[0] + "\n Units: Imperial / **Metric**"
+                    new_embed = discord.Embed(title=embed.title, description=new_description, color=0x193ed2)
+                    new_embed.add_field(name="Temperature", value=temperature +"°C", inline=True)
+                    new_embed.add_field(name="Feels Like Temperature", value=feels_like+"°C", inline=True)
+                    new_embed.add_field(name="Dew Point", value=dew_point+"°C", inline=True)
+                    new_embed.add_field(name="Wind Speed", value=wind_speed+"km/h", inline=True)
+                    new_embed.add_field(name="Wind Gust", value=wind_gust+"km/h", inline=True)
+                    new_embed.add_field(name="Wind Direction", value=embed_fields[5].value, inline=True)
+                    new_embed.add_field(name="Rainfall Rate", value=rainfall_rate+"cm/hr", inline=True)
+                    new_embed.add_field(name="Rainfall Today", value=rainfall_today+"cm", inline=True)
+                    new_embed.add_field(name="Humidity", value=embed_fields[8].value, inline=True)
+                    new_embed.add_field(name="Pressure", value=embed_fields[9].value, inline=True)
+                    new_embed.add_field(name="UV Radiation Value", value=embed_fields[10].value, inline=True)
+                    new_embed.add_field(name="Solar Radiation", value=embed_fields[11].value, inline=True)
+                    new_embed.set_footer(text=embed.footer.text)
+
+                    await reaction.message.edit(embed=new_embed)
+
         if reaction.emoji == '\U0001f1ee' and user.id != 731989043713146990:
             if reaction.message.author.id == 731989043713146990:
-                await reaction.message.edit(embed=embed_fahrenheit)
+                embed = reaction.message.embeds[0]
+                embed_fields = embed.fields
+                if embed_fields[0].value.split("°")[1] == "C":
+                    try:
+                        temperature = str(round(((float(embed_fields[0].value.split("°")[0])*(9/5))+32),1))
+                    except ValueError:
+                        temperature = "--"
+                    try:
+                        feels_like = str(round(((float(embed_fields[1].value.split("°")[0])*(9/5))+32),1))
+                    except ValueError:
+                        feels_like = "--"
+                    try:
+                        dew_point = str(round(((float(embed_fields[2].value.split("°")[0])*(9/5))+32),1))
+                    except ValueError:
+                        dew_point = "--"
+                    try:
+                        wind_speed = str(round(float(embed_fields[3].value.split("km")[0])/1.609344,1))
+                    except ValueError:
+                        wind_speed = "--"
+                    try:
+                        wind_gust = str(round(float(embed_fields[4].value.split("km")[0])/1.609344,1))
+                    except ValueError:
+                        wind_gust = "--"
+                    try:
+                        rainfall_rate = str(round(float(embed_fields[6].value.split("cm")[0])*0.3937,2))
+                    except ValueError:
+                        rainfall_rate = "--"
+                    try:
+                        rainfall_today = str(round(float(embed_fields[7].value.split("cm")[0])*0.3937,2))
+                    except ValueError:
+                        rainfall_today= "--"
+                    new_description = embed.description.text.split("\n")[0] + "\n Units: **Imperial** / Metric"
+                    new_embed = discord.Embed(title=embed.title, description=new_description, color=0x193ed2)
+                    new_embed.add_field(name="Temperature", value=temperature +"°F", inline=True)
+                    new_embed.add_field(name="Feels Like Temperature", value=feels_like+"°F", inline=True)
+                    new_embed.add_field(name="Dew Point", value=dew_point+"°F", inline=True)
+                    new_embed.add_field(name="Wind Speed", value=wind_speed+"mph", inline=True)
+                    new_embed.add_field(name="Wind Gust", value=wind_gust+"mph", inline=True)
+                    new_embed.add_field(name="Wind Direction", value=embed_fields[5].value, inline=True)
+                    new_embed.add_field(name="Rainfall Rate", value=rainfall_rate+"in/hr", inline=True)
+                    new_embed.add_field(name="Rainfall Today", value=rainfall_today+"in", inline=True)
+                    new_embed.add_field(name="Humidity", value=embed_fields[8].value, inline=True)
+                    new_embed.add_field(name="Pressure", value=embed_fields[9].value, inline=True)
+                    new_embed.add_field(name="UV Radiation Value", value=embed_fields[10].value, inline=True)
+                    new_embed.add_field(name="Solar Radiation", value=embed_fields[11].value, inline=True)
+                    new_embed.set_footer(text=embed.footer.text)
+
+                    await reaction.message.edit(embed=new_embed)
+
+
         if reaction.emoji == '\U0001f1eb' and user.id != 731989043713146990:
             if reaction.message.author.id == 731989043713146990:
-                await reaction.message.edit(embed=embed_imperial)
+
+                embed = reaction.message.embeds[0]
+                embed_fields = embed.fields
+
+                temperature1 = str(int(round(((float(embed_fields[1].value.split("°")[0])*(9/5))+32),0)))
+                temperature2 = str(int(round(((float(embed_fields[5].value.split("°")[0])*(9/5))+32),0)))
+                temperature3 = str(int(round(((float(embed_fields[9].value.split("°")[0])*(9/5))+32),0)))
+                rain_field1 = embed_fields[2].value.split("/ ")[1]
+                rain_field2 = embed_fields[6].value.split("/ ")[1]
+                rain_field3 = embed_fields[10].value.split("/ ")[1]
+                amount1 = str(round(float(rain_field1.split("cm")[0])*0.3937,2))
+                amount2 = str(round(float(rain_field2.split("cm")[0])*0.3937,2))
+                amount3 = str(round(float(rain_field3.split("cm")[0])*0.3937,2))
+                rain1 = embed_fields[2].value.split("/")[0]+"/ "+amount1
+                rain2 = embed_fields[6].value.split("/")[0]+"/ "+amount2
+                rain3 = embed_fields[10].value.split("/")[0]+"/ "+amount3
+                new_description = embed.description.split("\n")[0] + "\n Units: Imperial / **Metric**"
+                new_embed = discord.Embed(title="Forecast", description=new_description, color=0x002aff)
+                new_embed.add_field(name=embed_fields[0].name, value=embed_fields[0].value, inline=True)
+                new_embed.add_field(name=embed_fields[1].name, value=temperature1+"°F", inline=True)
+                new_embed.add_field(name="Rain Chance / Amount", value=rain1+" in", inline=True)
+                new_embed.add_field(name="Description", value=embed_fields[3].value, inline=False)
+                new_embed.add_field(name=embed_fields[4].name, value=embed_fields[4].value, inline=True)
+                new_embed.add_field(name=embed_fields[5].name, value=temperature2+"°F", inline=True)
+                new_embed.add_field(name="Rain Chance / Amount", value=rain2+" in", inline=True)
+                new_embed.add_field(name="Description", value=embed_fields[7].value, inline=False)
+                new_embed.add_field(name=embed_fields[8].name, value=embed_fields[8].value, inline=True)
+                new_embed.add_field(name=embed_fields[9].name, value=temperature3+"°F", inline=True)
+                new_embed.add_field(name="Rain Chance / Amount", value=rain3+" in", inline=True)
+                new_embed.add_field(name="Description", value=embed_fields[11].value, inline=True)
+                new_embed.set_footer(text=embed.footer.text)
+
+                await reaction.message.edit(embed=new_embed)
+
+
         if reaction.emoji == '\U0001f1e8' and user.id != 731989043713146990:
             if reaction.message.author.id == 731989043713146990:
-                await reaction.message.edit(embed=embed_metric)
+
+                embed = reaction.message.embeds[0]
+                embed_fields = embed.fields
+
+                temperature1 = str(int(round(((float(embed_fields[1].value.split("°")[0])-32)*5/9),0)))
+                temperature2 = str(int(round(((float(embed_fields[5].value.split("°")[0])-32)*5/9),0)))
+                temperature3 = str(int(round(((float(embed_fields[9].value.split("°")[0])-32)*5/9),0)))
+                rain_field1 = embed_fields[2].value.split("/ ")[1]
+                rain_field2 = embed_fields[6].value.split("/ ")[1]
+                rain_field3 = embed_fields[10].value.split("/ ")[1]
+                amount1 = str(round(float(rain_field1.split("in")[0])/0.3937,2))
+                amount2 = str(round(float(rain_field2.split("in")[0])/0.3937,2))
+                amount3 = str(round(float(rain_field3.split("in")[0])/0.3937,2))
+                rain1 = embed_fields[2].value.split("/")[0]+"/ "+amount1
+                rain2 = embed_fields[6].value.split("/")[0]+"/ "+amount2
+                rain3 = embed_fields[10].value.split("/")[0]+"/ "+amount3
+                new_description = embed.description.split("\n")[0] + "\n Units: Imperial / **Metric**"
+                new_embed = discord.Embed(title="Forecast", description=new_description, color=0x002aff)
+                new_embed.add_field(name=embed_fields[0].name, value=embed_fields[0].value, inline=True)
+                new_embed.add_field(name=embed_fields[1].name, value=temperature1+"°C", inline=True)
+                new_embed.add_field(name="Rain Chance / Amount", value=rain1+" cm", inline=True)
+                new_embed.add_field(name="Description", value=embed_fields[3].value, inline=False)
+                new_embed.add_field(name=embed_fields[4].name, value=embed_fields[4].value, inline=True)
+                new_embed.add_field(name=embed_fields[5].name, value=temperature2+"°C", inline=True)
+                new_embed.add_field(name="Rain Chance / Amount", value=rain2+" cm", inline=True)
+                new_embed.add_field(name="Description", value=embed_fields[7].value, inline=False)
+                new_embed.add_field(name=embed_fields[8].name, value=embed_fields[8].value, inline=True)
+                new_embed.add_field(name=embed_fields[9].name, value=temperature3+"°C", inline=True)
+                new_embed.add_field(name="Rain Chance / Amount", value=rain3+" cm", inline=True)
+                new_embed.add_field(name="Description", value=embed_fields[11].value, inline=True)
+                new_embed.set_footer(text=embed.footer.text)
+
+                await reaction.message.edit(embed=new_embed)
+
 
     async def on_reaction_add(self,reaction, user):
         await self.edit_message(reaction,user)
 
-    async def on_reaction_remove(self,reaction, user):
-        await self.edit_message(reaction,user)
+
 
 
     async def on_message(self, message):
