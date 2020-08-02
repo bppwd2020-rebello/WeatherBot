@@ -2,6 +2,7 @@ import filecmp
 from datetime import datetime
 from datetime import date
 import aiohttp
+from aiohttp import client_exceptions
 import asyncio
 import time
 from time import sleep
@@ -68,7 +69,7 @@ async def get_wind():
 
         wind_speed = soup.find("div", attrs = {'class':'weather__data weather__wind-gust'}).find("div", attrs = {'class':'weather__text'}).find("span", attrs = {'class':'test-false wu-unit ng-star-inserted'}).find("span", attrs = {'class':'wu-value wu-value-to'}).text
         wind_gust = soup.find("div", attrs = {'class':'weather__data weather__wind-gust'}).find("div", attrs = {'class':'weather__text'}).find("span", attrs = {'class':'test-false wu-unit wu-unit-speed ng-star-inserted'}).find("span", attrs = {'class':'wu-value wu-value-to'}).text
-    except (AttributeError, ValueError) as err:
+    except (AttributeError, ValueError,client_exceptions.ClientConnectorError) as err:
         print(err)
         return(winds)
     if wind_speed != None and wind_gust != None:
