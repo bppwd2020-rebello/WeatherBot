@@ -270,19 +270,28 @@ class Client(discord.Client):
 
                 embed = reaction.message.embeds[0]
                 embed_fields = embed.fields
+                try:
+                    temperature1 = str(int(round(((float(embed_fields[1].value.split("°")[0])*(9/5))+32),0)))
+                    temperature2 = str(int(round(((float(embed_fields[5].value.split("°")[0])*(9/5))+32),0)))
+                    temperature3 = str(int(round(((float(embed_fields[9].value.split("°")[0])*(9/5))+32),0)))
+                    rain_field1 = embed_fields[2].value.split("/ ")[1]
+                    rain_field2 = embed_fields[6].value.split("/ ")[1]
+                    rain_field3 = embed_fields[10].value.split("/ ")[1]
+                    amount1 = str(round(float(rain_field1.split("cm")[0])*0.3937,2))
+                    amount2 = str(round(float(rain_field2.split("cm")[0])*0.3937,2))
+                    amount3 = str(round(float(rain_field3.split("cm")[0])*0.3937,2))
+                    rain1 = embed_fields[2].value.split("/")[0]+"/ "+amount1
+                    rain2 = embed_fields[6].value.split("/")[0]+"/ "+amount2
+                    rain3 = embed_fields[10].value.split("/")[0]+"/ "+amount3
 
-                temperature1 = str(int(round(((float(embed_fields[1].value.split("°")[0])*(9/5))+32),0)))
-                temperature2 = str(int(round(((float(embed_fields[5].value.split("°")[0])*(9/5))+32),0)))
-                temperature3 = str(int(round(((float(embed_fields[9].value.split("°")[0])*(9/5))+32),0)))
-                rain_field1 = embed_fields[2].value.split("/ ")[1]
-                rain_field2 = embed_fields[6].value.split("/ ")[1]
-                rain_field3 = embed_fields[10].value.split("/ ")[1]
-                amount1 = str(round(float(rain_field1.split("cm")[0])*0.3937,2))
-                amount2 = str(round(float(rain_field2.split("cm")[0])*0.3937,2))
-                amount3 = str(round(float(rain_field3.split("cm")[0])*0.3937,2))
-                rain1 = embed_fields[2].value.split("/")[0]+"/ "+amount1
-                rain2 = embed_fields[6].value.split("/")[0]+"/ "+amount2
-                rain3 = embed_fields[10].value.split("/")[0]+"/ "+amount3
+                except ValueError:
+                    temperature1 = embed_fields[1].value.split("°")[0]
+                    temperature2 = embed_fields[5].value.split("°")[0]
+                    temperature3 = embed_fields[9].value.split("°")[0]
+                    rain1 = embed_fields[2].value.split("in")[0]
+                    rain2 = embed_fields[6].value.split("in")[0]
+                    rain3 = embed_fields[10].value.split("in")[0]
+
                 new_description = embed.description.split("\n")[0] + "\n Units: Imperial / **Metric**"
                 new_embed = discord.Embed(title="Forecast", description=new_description, color=0x002aff)
                 new_embed.add_field(name=embed_fields[0].name, value=embed_fields[0].value, inline=True)
@@ -307,19 +316,27 @@ class Client(discord.Client):
 
                 embed = reaction.message.embeds[0]
                 embed_fields = embed.fields
+                try:
+                    temperature1 = str(int(round(((float(embed_fields[1].value.split("°")[0])-32)*5/9),0)))
+                    temperature2 = str(int(round(((float(embed_fields[5].value.split("°")[0])-32)*5/9),0)))
+                    temperature3 = str(int(round(((float(embed_fields[9].value.split("°")[0])-32)*5/9),0)))
+                    rain_field1 = embed_fields[2].value.split("/ ")[1]
+                    rain_field2 = embed_fields[6].value.split("/ ")[1]
+                    rain_field3 = embed_fields[10].value.split("/ ")[1]
+                    amount1 = str(round(float(rain_field1.split("in")[0])/0.3937,2))
+                    amount2 = str(round(float(rain_field2.split("in")[0])/0.3937,2))
+                    amount3 = str(round(float(rain_field3.split("in")[0])/0.3937,2))
+                    rain1 = embed_fields[2].value.split("/")[0]+"/ "+amount1
+                    rain2 = embed_fields[6].value.split("/")[0]+"/ "+amount2
+                    rain3 = embed_fields[10].value.split("/")[0]+"/ "+amount3
+                except ValueError:
+                    temperature1 = embed_fields[1].value.split("°")[0]
+                    temperature2 = embed_fields[5].value.split("°")[0]
+                    temperature3 = embed_fields[9].value.split("°")[0]
+                    rain1 = embed_fields[2].value.split("cm")[0]
+                    rain2 = embed_fields[6].value.split("cm")[0]
+                    rain3 = embed_fields[10].value.split("cm")[0]
 
-                temperature1 = str(int(round(((float(embed_fields[1].value.split("°")[0])-32)*5/9),0)))
-                temperature2 = str(int(round(((float(embed_fields[5].value.split("°")[0])-32)*5/9),0)))
-                temperature3 = str(int(round(((float(embed_fields[9].value.split("°")[0])-32)*5/9),0)))
-                rain_field1 = embed_fields[2].value.split("/ ")[1]
-                rain_field2 = embed_fields[6].value.split("/ ")[1]
-                rain_field3 = embed_fields[10].value.split("/ ")[1]
-                amount1 = str(round(float(rain_field1.split("in")[0])/0.3937,2))
-                amount2 = str(round(float(rain_field2.split("in")[0])/0.3937,2))
-                amount3 = str(round(float(rain_field3.split("in")[0])/0.3937,2))
-                rain1 = embed_fields[2].value.split("/")[0]+"/ "+amount1
-                rain2 = embed_fields[6].value.split("/")[0]+"/ "+amount2
-                rain3 = embed_fields[10].value.split("/")[0]+"/ "+amount3
                 new_description = embed.description.split("\n")[0] + "\n Units: Imperial / **Metric**"
                 new_embed = discord.Embed(title="Forecast", description=new_description, color=0x002aff)
                 new_embed.add_field(name=embed_fields[0].name, value=embed_fields[0].value, inline=True)
@@ -414,7 +431,7 @@ class Client(discord.Client):
                                 await message.channel.send("The nearest station is an airport and only a forecast is availible")
                                 if message.content.split(" ")[-1].upper()=="I": flag = True
                                 else: flag = false
-                                await self.forecast_run(message.content.split(" ")[1],message.content.split(" ")[2],flag,message)
+                                await self.forecast_run(message.content.split(" ")[1],message.content.split(" ")[2],flag,False,message,"NULL")
                             else:
                                 await self.weather_run(new_code,message,True)
                         except IndexError:
