@@ -24,6 +24,7 @@ async def main(loop):
     while(True):
         #print(datetime.now().strftime("%S"))
         sleep(1)
+        today = date.today()
         if datetime.now().strftime("%S") == "00":
             wind_data = []
             highest_wind = 0.0
