@@ -408,7 +408,7 @@ class Client(discord.Client):
 
 
 
-        if message.content == '~weather' or message.content == ~'simple':
+        if message.content == '~weather' or message.content == '~simple':
             if message.content == 'weather': regular = True
             else: regular = False
             await self.weather_run('KMAWORCE57', message, regular)
