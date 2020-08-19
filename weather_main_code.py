@@ -387,7 +387,7 @@ class Client(discord.Client):
             embed.add_field(name="~weather ***town state-abbrv***", value="Gives the current weather conditions of a specific location.\n Town names with a space: Replace spaces with a - \n Internationals: Do Town, Country-Abbrv then an i to get yours. \n Example: ~weather London GB I", inline=False)
             embed.add_field(name="~simple ***code*** (see ~code)", value="Gives the current shortened weather conditions of a specific location", inline=False)
             embed.add_field(name="~simple ***town state-abbrv***", value="Used the same as ~weather but a shortened version", inline=False)
-            embed.add_field(name="~forecast ***town state-abbrv*** ", value="Gives you the forecast of a specific location.\n Town names with a space: Replace spaces with a - \n Internationals: Do Town, Country-Abbrv then an i to get yours. \n Example: ~forecast London GB I"", inline=False)
+            embed.add_field(name="~forecast ***town state-abbrv*** ", value="Gives you the forecast of a specific location.\n Town names with a space: Replace spaces with a - \n Internationals: Do Town, Country-Abbrv then an i to get yours. \n Example: ~forecast London GB I", inline=False)
             embed.add_field(name="~currentTemp ***code*** (see ~code)", value="Gives you the current temperature of a specific location", inline=False)
             embed.add_field(name="~code", value="Tells you how to input a correct code", inline=False)
             embed.add_field(name="~weather / ~weather WPI", value="Gives you the current weather at WPI", inline=False)
