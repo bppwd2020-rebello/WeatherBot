@@ -118,7 +118,7 @@ class Client(discord.Client):
 
     async def wind_run(self, code, message):
         await message.channel.send("Recieved! Station Code: " + code + ".")
-        response = weather.get_wind(code)
+        await response = weather.get_wind(code)
         if response == "THIS STATION DOES NOT EXIST":
             await message.channel.send(response)
         elif response == "THIS STATION IS OFFLINE":
@@ -384,37 +384,43 @@ class Client(discord.Client):
             embed=discord.Embed(title="Help:", description="All the commands currently callable for the bot.", color=0x193ed2)
             embed.add_field(name="~ping", value="Tests the latency to the bot", inline=False)
             embed.add_field(name="~weather ***code*** (see ~code)", value="Gives the current weather conditions of a specific location", inline=False)
-            embed.add_field(name="~weather ***town state abbreviation***", value="Gives the current weather conditions of a specific location.\n Town names with a space: Replace spaces with a - \n Internationals: Do Town, Country Abbrevation then an i to get yours", inline=False)
-            embed.add_field(name="~forecast ***town state abbreviation*** ", value="Gives you the forecast of a specific location.\n Town names with a space: Replace spaces with a - \n Internationals: Do Town, Country Abbrevation then an i to get yours", inline=False)
+            embed.add_field(name="~weather ***town state-abbrv***", value="Gives the current weather conditions of a specific location.\n Town names with a space: Replace spaces with a - \n Internationals: Do Town, Country-Abbrv then an i to get yours. \n Example: ~weather London GB I", inline=False)
+            embed.add_field(name="~simple ***code*** (see ~code)", value="Gives the current shortened weather conditions of a specific location", inline=False)
+            embed.add_field(name="~simple ***town state-abbrv***", value="Used the same as ~weather but a shortened version", inline=False)
+            embed.add_field(name="~forecast ***town state-abbrv*** ", value="Gives you the forecast of a specific location.\n Town names with a space: Replace spaces with a - \n Internationals: Do Town, Country-Abbrv then an i to get yours. \n Example: ~forecast London GB I"", inline=False)
             embed.add_field(name="~currentTemp ***code*** (see ~code)", value="Gives you the current temperature of a specific location", inline=False)
             embed.add_field(name="~code", value="Tells you how to input a correct code", inline=False)
-            embed.add_field(name="~weather or ~weather WPI", value="Gives you the current weather at WPI", inline=False)
-            embed.add_field(name="~forecast", value="Gives you the forecast for WPI", inline=False)
-            embed.add_field(name="~currentTemp or ~currentTemp WPI", value="Gives you the current temperature for WPI", inline=False)
+            embed.add_field(name="~weather / ~weather WPI", value="Gives you the current weather at WPI", inline=False)
+            embed.add_field(name="~simple / ~simple WPI", value="Gives you the current shortened weather conditions at WPI", inline=False)
+            embed.add_field(name="~forecast / ~forecast WPI", value="Gives you the current forecast for WPI", inline=False)
+            embed.add_field(name="~currentTemp / ~currentTemp WPI", value="Gives you the current temperature for WPI", inline=False)
             embed.set_footer(text="Command called: ~help")
             await message.channel.send(embed=embed)
 
         if message.content == '~code':
             embed=discord.Embed(title="Code:", description="How to type the code for a weather station", color=0x193ed2)
-            embed.add_field(name="First letter:", value="K for USA", inline=False)
-            embed.add_field(name="Second and third letter:", value="Your state abbreviation.", inline=False)
-            embed.add_field(name="The Next 3 to 5 letters:", value="First 5 letters of town name or whole town name if it's less than 5.", inline=False)
-            embed.add_field(name="Last 1 to 3 characters:", value="Station # in that town, most towns have under 30 but if it has a common first 5 letters (Southborough/Southbrige), it can be well over 100 or normal", inline=False)
-            embed.set_footer(text="Example: K(USA)MA(Massachusetts)OXFOR(Oxford)33(Station #) KMAOXFOR33 \n DISCLAIMER: Some stations may be offline or no longer exist so certain #s will not work")
+            embed.add_field(name="First method:", value="The specific weather station code is displayed in the embed after you call ~weather or ~forecase using the town state-abbrv format", inline=False)
+            embed.add_field(name="Second method:", value="In the embed for weather is a lind to that station's online dashboard, on the map you can locate and use other station codes and call ~weather *code*", inline=False)
+            embed.add_field(name="Notes:", value="Some stations are offline or do not exist so if you find KMAWORCE57 as a working station, 56 or 58 may not work.", inline=False)
+            embed.set_footer(text="Example: K(USA)MA(Massachusetts)OXFOR(Oxford)33(Station #) KMAOXFOR33.")
             await message.channel.send(embed=embed)
 
 
 
-        if message.content == '~weather':
-            await self.weather_run('KMAWORCE57', message, True)
-        elif message.content.startswith('~weather'):
+        if message.content == '~weather' or message.content == ~'simple':
+            if message.content == 'weather': regular = True
+            else: regular = False
+            await self.weather_run('KMAWORCE57', message, regular)
+        elif message.content.startswith('~weather') or message.content.startswith('~simple'):
+            if message.content.startswith('~weather'): regular = True
+            else: regular = False
             message_length = len(message.content.split(" "))
             if message_length == 2:
                 code = self.validate_code(message)
                 if code == "Invalid code!":
                     await message.channel.send("Invalid code!")
                 else:
-                    await self.weather_run(code,message,True)
+                    await self.weather_run(code,message,regular)
             elif message_length==3 or (message_length == 4 and message.content.split(" ")[-1].upper()=="I"):
                 async with aiohttp.ClientSession() as session:
                     if message_length == 3:
@@ -433,7 +439,7 @@ class Client(discord.Client):
                                 else: flag = false
                                 await self.forecast_run(message.content.split(" ")[1],message.content.split(" ")[2],flag,False,message,"NULL")
                             else:
-                                await self.weather_run(new_code,message,True)
+                                await self.weather_run(new_code,message,regular)
                         except IndexError:
                             await message.channel.send("Invalid code!")
                     except AttributeError:
@@ -442,17 +448,6 @@ class Client(discord.Client):
                 await message.channel.send("Invalid code!")
 
 
-
-
-
-        if message.content == '~simple':
-            await self.weather_run('KMAWORCE57', message, False)
-        elif message.content.startswith('~simple'):
-            code = self.validate_code(message)
-            if code == "Invalid code!":
-                await message.channel.send("Invalid code!")
-            else:
-                await self.weather_run(code,message,False)
 
         if message.content == '~currentTemp':
             await self.temp_run('KMAWORCE57', message)
