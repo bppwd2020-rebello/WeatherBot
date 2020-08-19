@@ -118,7 +118,7 @@ class Client(discord.Client):
 
     async def wind_run(self, code, message):
         await message.channel.send("Recieved! Station Code: " + code + ".")
-        await response = weather.get_wind(code)
+        response = await weather.get_wind(code)
         if response == "THIS STATION DOES NOT EXIST":
             await message.channel.send(response)
         elif response == "THIS STATION IS OFFLINE":
@@ -394,6 +394,7 @@ class Client(discord.Client):
             embed.add_field(name="~simple / ~simple WPI", value="Gives you the current shortened weather conditions at WPI", inline=False)
             embed.add_field(name="~forecast / ~forecast WPI", value="Gives you the current forecast for WPI", inline=False)
             embed.add_field(name="~currentTemp / ~currentTemp WPI", value="Gives you the current temperature for WPI", inline=False)
+            embed.add_field(name="Reactions", value = "The reactions at the bottom let you change the data from imperial to metric and vise versa")
             embed.set_footer(text="Command called: ~help")
             await message.channel.send(embed=embed)
 
