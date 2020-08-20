@@ -206,10 +206,13 @@ class Client(discord.Client):
                     new_embed.add_field(name="Rainfall Rate", value=rainfall_rate+"cm/hr", inline=True)
                     new_embed.add_field(name="Rainfall Today", value=rainfall_today+"cm", inline=True)
                     new_embed.add_field(name="Humidity", value=embed_fields[8].value, inline=True)
-                    new_embed.add_field(name="Pressure", value=embed_fields[9].value, inline=True)
-                    new_embed.add_field(name="UV Radiation Value", value=embed_fields[10].value, inline=True)
-                    new_embed.add_field(name="Solar Radiation", value=embed_fields[11].value, inline=True)
-                    new_embed.set_footer(text=embed.footer.text)
+                    try:
+                        new_embed.add_field(name="Pressure", value=embed_fields[9].value, inline=True)
+                        new_embed.add_field(name="UV Radiation Value", value=embed_fields[10].value, inline=True)
+                        new_embed.add_field(name="Solar Radiation", value=embed_fields[11].value, inline=True)
+                        new_embed.set_footer(text=embed.footer.text)
+                    except IndexError:
+                        new_embed.set_footer(text=embed.footer.text)
 
                     await reaction.message.edit(embed=new_embed)
 
@@ -257,10 +260,13 @@ class Client(discord.Client):
                     new_embed.add_field(name="Rainfall Rate", value=rainfall_rate+"in/hr", inline=True)
                     new_embed.add_field(name="Rainfall Today", value=rainfall_today+"in", inline=True)
                     new_embed.add_field(name="Humidity", value=embed_fields[8].value, inline=True)
-                    new_embed.add_field(name="Pressure", value=embed_fields[9].value, inline=True)
-                    new_embed.add_field(name="UV Radiation Value", value=embed_fields[10].value, inline=True)
-                    new_embed.add_field(name="Solar Radiation", value=embed_fields[11].value, inline=True)
-                    new_embed.set_footer(text=embed.footer.text)
+                    try:
+                        new_embed.add_field(name="Pressure", value=embed_fields[9].value, inline=True)
+                        new_embed.add_field(name="UV Radiation Value", value=embed_fields[10].value, inline=True)
+                        new_embed.add_field(name="Solar Radiation", value=embed_fields[11].value, inline=True)
+                        new_embed.set_footer(text=embed.footer.text)
+                    except IndexError:
+                        new_embed.set_footer(text=embed.footer.text)
 
                     await reaction.message.edit(embed=new_embed)
 
